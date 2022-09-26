@@ -7,6 +7,7 @@ import cookieParser from "express-session";
 import bcrypt from "bcryptjs";
 import session from "express-session";
 import dotent from "dotenv";
+import User from "./User";
 
 mongoose.connect(
   "server",
@@ -25,21 +26,26 @@ mongoose.connect(
 const app = express();
 app.use(express.json());
 app.use(cors({ origin: "http://localhost:3000", credentials: true }));
-app.use(session:({
-  secret: "secretcode",
-  resave: true,
-  saveUninitialized: true,
-}))
+app.use(
+  session({
+    secret: "secretcode",
+    resave: true,
+    saveUninitialized: true,
+  })
+);
 
 app.use(cookieParser());
 app.use(passport.initialize());
 app.use(passport.session);
 
 // Routes
-app.post("/register", async (req: Request,res: Response) =>{
+app.post("/register", async (req: Request, res: Response) => {
   const hashedPassword = await bcrypt.hash(req.body.password, 10);
   const newUser = new User({
-    username:req.body.username,
-    password: 
-  })
-})
+    username: req.body.username,
+    password: hashedPassword,
+  });
+
+  await newUser.save();
+  res.send("Success");
+});
